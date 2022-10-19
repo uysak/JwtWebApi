@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,11 +16,26 @@ namespace JwtWebApiTutorial.Controllers
 
         private IConfiguration _configuration;
 
-        public AuthController(IConfiguration configuration)
+        private IUserService _userService { get; }
+
+        public AuthController(IConfiguration configuration, IUserService userService)
         {
             _configuration = configuration;
+            _userService = userService;
         }
 
+        [HttpGet,Authorize]
+        public ActionResult<object> GetMe()
+        {
+            var userName = _userService.GetMyName();
+            return Ok(userName);
+
+
+            //var userName = User?.Identity?.Name;
+            //var userName2 = User.FindFirstValue(ClaimTypes.Name);
+            //var role = User.FindFirstValue(ClaimTypes.Role);
+            //return Ok(new {userName,userName2,role});
+        }
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDto request)
         {
